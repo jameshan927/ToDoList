@@ -80,6 +80,11 @@ public class MainActivity extends AppCompatActivity {
         db.close();
         updateUI();
 
+        SharedPreferences pref = getSharedPreferences(list, MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear();
+        editor.commit();
+
         Context context = getApplicationContext();
         int duration = Toast.LENGTH_SHORT;
         CharSequence message = list + " has been removed";
