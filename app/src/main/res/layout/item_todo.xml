@@ -13,4 +13,13 @@
         android:text="Hello"
         android:textSize="20sp" />
 
+    <ImageButton
+        android:id="@+id/list_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_delete"
+        android:onClick="deleteList"
+        android:layout_alignBottom="@+id/list_title"
+        android:layout_alignParentEnd="true" />
+
 </RelativeLayout>

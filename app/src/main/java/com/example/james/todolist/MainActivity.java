@@ -17,24 +17,25 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.james.todolist.db.TaskContract;
 import com.example.james.todolist.db.TaskDbHelper;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
 
     private TaskDbHelper mHelper;
+    private ListView mTaskListView;
+    private ArrayAdapter<String> mAdapter;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-/*
-        mHelper = new TaskDbHelper(this);
+    private void updateUI() {
+        ArrayList<String> listList = new ArrayList<>();
 
         SQLiteDatabase db = mHelper.getReadableDatabase();
         Cursor cursor = db.query(TaskContract.TaskEntry.TABLE,
@@ -42,11 +43,58 @@ public class MainActivity extends AppCompatActivity {
                 null, null, null, null, null);
         while(cursor.moveToNext()) {
             int idx = cursor.getColumnIndex(TaskContract.TaskEntry.COL_LIST_TITLE);
-            Log.d("MainActivity", "List: " + cursor.getString(idx));
+            // Log.d("MainActivity", "List: " + cursor.getString(idx));
+            listList.add(cursor.getString(idx));
         }
+
+        if(mAdapter == null) {
+            mAdapter = new ArrayAdapter<>(this,
+                    R.layout.item_todo,
+                    R.id.list_title,
+                    listList);
+            mTaskListView.setAdapter(mAdapter);
+        }
+        else {
+            mAdapter.clear();
+            mAdapter.addAll(listList);
+            mAdapter.notifyDataSetChanged();
+        }
+
         cursor.close();
         db.close();
-*/
+    }
+
+    public void deleteList(View view) {
+        View parent = (View) view.getParent();
+        TextView listTextView = (TextView) parent.findViewById(R.id.list_title);
+        String list = String.valueOf(listTextView.getText());
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        db.delete(TaskContract.TaskEntry.TABLE,
+                TaskContract.TaskEntry.COL_LIST_TITLE + " = ?",
+                new String[]{list});
+        db.close();
+        updateUI();
+
+        Context context = getApplicationContext();
+        int duration = Toast.LENGTH_SHORT;
+        CharSequence message = list + " has been removed";
+
+        Toast delete = Toast.makeText(context, message, duration);
+        delete.show();
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        mHelper = new TaskDbHelper(this);
+        mTaskListView = (ListView) findViewById(R.id.list_todo);
+
+        updateUI();
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_list);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 String name = String.valueOf(listName.getText());
                                 Log.d("MainActivity", "List created " + name);
-/*
+
                                 SQLiteDatabase db = mHelper.getWritableDatabase();
                                 ContentValues values = new ContentValues();
                                 values.put(TaskContract.TaskEntry.COL_LIST_TITLE, name);
@@ -74,8 +122,8 @@ public class MainActivity extends AppCompatActivity {
                                         values,
                                         SQLiteDatabase.CONFLICT_REPLACE);
                                 db.close();
-*/
 
+                                updateUI();
 
                                 Context context = getApplicationContext();
                                 int duration = Toast.LENGTH_SHORT;
