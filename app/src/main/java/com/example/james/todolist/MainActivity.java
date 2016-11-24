@@ -3,13 +3,13 @@ package com.example.james.todolist;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -23,14 +23,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.james.todolist.db.TaskContract;
-import com.example.james.todolist.db.TaskDbHelper;
+import com.example.james.todolist.db.ListContract;
+import com.example.james.todolist.db.ListDbHelper;
+import com.example.james.todolist.TaskActivity;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TaskDbHelper mHelper;
+    private ListDbHelper mHelper;
     private ListView mTaskListView;
     private ArrayAdapter<String> mAdapter;
 
@@ -38,11 +39,11 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<String> listList = new ArrayList<>();
 
         SQLiteDatabase db = mHelper.getReadableDatabase();
-        Cursor cursor = db.query(TaskContract.TaskEntry.TABLE,
-                new String[]{TaskContract.TaskEntry._ID, TaskContract.TaskEntry.COL_LIST_TITLE},
+        Cursor cursor = db.query(ListContract.ListEntry.TABLE,
+                new String[]{ListContract.ListEntry._ID, ListContract.ListEntry.COL_LIST_TITLE},
                 null, null, null, null, null);
         while(cursor.moveToNext()) {
-            int idx = cursor.getColumnIndex(TaskContract.TaskEntry.COL_LIST_TITLE);
+            int idx = cursor.getColumnIndex(ListContract.ListEntry.COL_LIST_TITLE);
             // Log.d("MainActivity", "List: " + cursor.getString(idx));
             listList.add(cursor.getString(idx));
         }
@@ -69,8 +70,8 @@ public class MainActivity extends AppCompatActivity {
         TextView listTextView = (TextView) parent.findViewById(R.id.list_title);
         String list = String.valueOf(listTextView.getText());
         SQLiteDatabase db = mHelper.getWritableDatabase();
-        db.delete(TaskContract.TaskEntry.TABLE,
-                TaskContract.TaskEntry.COL_LIST_TITLE + " = ?",
+        db.delete(ListContract.ListEntry.TABLE,
+                ListContract.ListEntry.COL_LIST_TITLE + " = ?",
                 new String[]{list});
         db.close();
         updateUI();
@@ -83,6 +84,11 @@ public class MainActivity extends AppCompatActivity {
         delete.show();
     }
 
+    public void taskActivity(View view) {
+        Intent intent = new Intent(this, TaskActivity.class);
+        startActivity(intent);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mHelper = new TaskDbHelper(this);
+        mHelper = new ListDbHelper(this);
         mTaskListView = (ListView) findViewById(R.id.list_todo);
 
         updateUI();
@@ -116,8 +122,8 @@ public class MainActivity extends AppCompatActivity {
 
                                 SQLiteDatabase db = mHelper.getWritableDatabase();
                                 ContentValues values = new ContentValues();
-                                values.put(TaskContract.TaskEntry.COL_LIST_TITLE, name);
-                                db.insertWithOnConflict(TaskContract.TaskEntry.TABLE,
+                                values.put(ListContract.ListEntry.COL_LIST_TITLE, name);
+                                db.insertWithOnConflict(ListContract.ListEntry.TABLE,
                                         null,
                                         values,
                                         SQLiteDatabase.CONFLICT_REPLACE);
