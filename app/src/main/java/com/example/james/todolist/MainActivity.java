@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.icu.text.SimpleDateFormat;
@@ -17,6 +18,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -26,6 +28,8 @@ import android.widget.Toast;
 import com.example.james.todolist.db.ListContract;
 import com.example.james.todolist.db.ListDbHelper;
 import com.example.james.todolist.TaskActivity;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -84,11 +88,6 @@ public class MainActivity extends AppCompatActivity {
         delete.show();
     }
 
-    public void taskActivity(View view) {
-        Intent intent = new Intent(this, TaskActivity.class);
-        startActivity(intent);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,6 +99,29 @@ public class MainActivity extends AppCompatActivity {
         mTaskListView = (ListView) findViewById(R.id.list_todo);
 
         updateUI();
+
+        mTaskListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                Context context = getApplicationContext();
+                int duration = Toast.LENGTH_SHORT;
+                CharSequence message = "clicked";
+
+                Toast add = Toast.makeText(context, message, duration);
+                add.show();
+
+                TextView listName = (TextView) view.findViewById(R.id.list_title);
+                String name = listName.getText().toString();
+                Log.d("Log", name);
+                Intent intent = new Intent(getApplicationContext(), TaskActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("listName", name);
+
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+        });
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_list);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -118,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 String name = String.valueOf(listName.getText());
-                                Log.d("MainActivity", "List created " + name);
+                                Log.d("Log", "List created " + name);
 
                                 SQLiteDatabase db = mHelper.getWritableDatabase();
                                 ContentValues values = new ContentValues();
@@ -157,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.add_list:
-                Log.d("MainActivity", "Add new list");
+                Log.d("Log", "Add new list");
                 return true;
 
             default:

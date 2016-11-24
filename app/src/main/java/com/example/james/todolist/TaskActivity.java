@@ -3,6 +3,8 @@ package com.example.james.todolist;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AlertDialog;
@@ -26,6 +28,8 @@ import com.example.james.todolist.db.TaskDbHelper;
 import com.example.james.todolist.MainActivity;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class TaskActivity extends AppCompatActivity {
 
@@ -33,16 +37,20 @@ public class TaskActivity extends AppCompatActivity {
     private ListView mTaskListView;
     private ArrayAdapter<String> mAdapter;
 
-    private void updateUI() {
+    public int counter = 0;
+
+    private void updateUI(String listName) {
         ArrayList<String> taskList = new ArrayList<>();
 
-        SQLiteDatabase db = mHelper.getReadableDatabase();
-        Cursor cursor = db.query(TaskContract.TaskEntry.TABLE,
-                new String[]{TaskContract.TaskEntry._ID, TaskContract.TaskEntry.COL_TASK_TITLE},
-                null, null, null, null, null);
-        while(cursor.moveToNext()) {
-            int idx = cursor.getColumnIndex(TaskContract.TaskEntry.COL_TASK_TITLE);
-            taskList.add(cursor.getString(idx));
+        if(counter != 0) {
+            SharedPreferences editor = getSharedPreferences(listName, MODE_PRIVATE);
+            for (int i = 1; i <= counter; i++) {
+                String index = Integer.toString(i);
+                String task = editor.getString(index, null);
+                if (task != null) {
+                    taskList.add(task);
+                }
+            }
         }
 
         if(mAdapter == null) {
@@ -58,20 +66,35 @@ public class TaskActivity extends AppCompatActivity {
             mAdapter.notifyDataSetChanged();
         }
 
-        cursor.close();
-        db.close();
+    }
+
+    public String findKey(SharedPreferences sharedPreferences, String value) {
+        TreeMap<String, ?> keys = new TreeMap<String, Object>(sharedPreferences.getAll());
+        for (Map.Entry<String, ?> entry: keys.entrySet()) {
+            if (value.equals(entry.getValue())) {
+                return entry.getKey();
+            }
+        }
+        return null; // not found
     }
 
     public void deleteTask(View view) {
         View parent = (View) view.getParent();
         TextView taskTextView = (TextView) parent.findViewById(R.id.task_title);
         String task = String.valueOf(taskTextView.getText());
-        SQLiteDatabase db = mHelper.getWritableDatabase();
-        db.delete(TaskContract.TaskEntry.TABLE,
-                TaskContract.TaskEntry.COL_TASK_TITLE + " = ?",
-                new String[]{task});
-        db.close();
-        updateUI();
+
+
+        Bundle bundle = getIntent().getExtras();
+        String listName = bundle.getString("listName");
+
+        SharedPreferences pref = getSharedPreferences(listName,MODE_PRIVATE);
+        String key = findKey(pref, task);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.remove(key);
+        editor.commit();
+
+
+        updateUI(listName);
 
         Context context = getApplicationContext();
         int duration = Toast.LENGTH_SHORT;
@@ -89,7 +112,12 @@ public class TaskActivity extends AppCompatActivity {
         mHelper = new TaskDbHelper(this);
         mTaskListView = (ListView) findViewById(R.id.task_list);
 
-        updateUI();
+
+        Bundle bundle = getIntent().getExtras();
+        String listName = bundle.getString("listName");
+        Log.d("listname", listName);
+
+        updateUI(listName);
     }
 
     @Override
@@ -114,16 +142,18 @@ public class TaskActivity extends AppCompatActivity {
                                 String name = String.valueOf(taskName.getText());
                                 Log.d("MainActivity", "Task created " + name);
 
-                                SQLiteDatabase db = mHelper.getWritableDatabase();
-                                ContentValues values = new ContentValues();
-                                values.put(TaskContract.TaskEntry.COL_TASK_TITLE, name);
-                                db.insertWithOnConflict(TaskContract.TaskEntry.TABLE,
-                                        null,
-                                        values,
-                                        SQLiteDatabase.CONFLICT_REPLACE);
-                                db.close();
 
-                                updateUI();
+                                Bundle bundle = getIntent().getExtras();
+                                String listName = bundle.getString("listName");
+
+                                SharedPreferences.Editor editor = getSharedPreferences(listName,MODE_PRIVATE).edit();
+
+                                String place = Integer.toString(++counter);
+                                editor.putString(place, name);
+                                editor.commit();
+
+
+                                updateUI(listName);
                             }
                         })
                         .setNegativeButton("Cancel", null)
