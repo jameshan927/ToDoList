@@ -42,15 +42,12 @@ public class TaskActivity extends AppCompatActivity {
     private void updateUI(String listName) {
         ArrayList<String> taskList = new ArrayList<>();
 
-        if(counter != 0) {
-            SharedPreferences editor = getSharedPreferences(listName, MODE_PRIVATE);
-            for (int i = 1; i <= counter; i++) {
-                String index = Integer.toString(i);
-                String task = editor.getString(index, null);
-                if (task != null) {
-                    taskList.add(task);
-                }
-            }
+        SharedPreferences pref = getSharedPreferences(listName, MODE_PRIVATE);
+
+        TreeMap<String, ?> keys = new TreeMap<String, Object>(pref.getAll());
+        for (Map.Entry<String, ?> entry: keys.entrySet()) {
+            String task = entry.getValue().toString();
+            taskList.add(task);
         }
 
         if(mAdapter == null) {

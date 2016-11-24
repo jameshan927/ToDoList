@@ -104,13 +104,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                Context context = getApplicationContext();
-                int duration = Toast.LENGTH_SHORT;
-                CharSequence message = "clicked";
-
-                Toast add = Toast.makeText(context, message, duration);
-                add.show();
-
                 TextView listName = (TextView) view.findViewById(R.id.list_title);
                 String name = listName.getText().toString();
                 Log.d("Log", name);
