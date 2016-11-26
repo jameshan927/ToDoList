@@ -37,7 +37,6 @@ public class TaskActivity extends AppCompatActivity {
     private ListView mTaskListView;
     private ArrayAdapter<String> mAdapter;
 
-    public int counter = 0;
 
     private void updateUI(String listName) {
         ArrayList<String> taskList = new ArrayList<>();
@@ -114,6 +113,7 @@ public class TaskActivity extends AppCompatActivity {
         String listName = bundle.getString("listName");
         Log.d("listname", listName);
 
+
         updateUI(listName);
     }
 
@@ -145,8 +145,8 @@ public class TaskActivity extends AppCompatActivity {
 
                                 SharedPreferences.Editor editor = getSharedPreferences(listName,MODE_PRIVATE).edit();
 
-                                String place = Integer.toString(++counter);
-                                editor.putString(place, name);
+                                editor.putString(name, name);
+
                                 editor.commit();
 
 
