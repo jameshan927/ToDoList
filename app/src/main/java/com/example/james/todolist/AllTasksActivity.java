@@ -81,9 +81,11 @@ public class AllTasksActivity extends AppCompatActivity {
             mTaskListView.setAdapter(mAdapter);
         }
         else {
-            mAdapter.clear();
-            mAdapter.addAll(taskList);
-            mAdapter.notifyDataSetChanged();
+            mAdapter = new ArrayAdapter<>(this,
+                    R.layout.task_todo,
+                    R.id.task_title,
+                    taskList);
+            mTaskListView.setAdapter(mAdapter);
         }
     }
 
