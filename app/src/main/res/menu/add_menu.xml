@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/add_task"
-        android:icon="@android:drawable/ic_menu_add"
+        android:icon="@android:drawable/ic_input_add"
         android:title="Add task"
         app:showAsAction="always" />
 

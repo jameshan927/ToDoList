@@ -7,6 +7,20 @@
     android:fitsSystemWindows="true"
     tools:context="com.example.james.todolist.MainActivity">
 
+    <include layout="@layout/content_main" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/add_list"
+        android:layout_width="50dp"
+        android:layout_height="52dp"
+        android:layout_margin="@dimen/fab_margin"
+        android:focusable="false"
+        android:clickable="false"
+        app:srcCompat="@android:drawable/ic_input_add"
+        app:layout_anchorGravity="top|left"
+        android:layout_gravity="bottom|right"
+        app:backgroundTint="@android:color/darker_gray" />
+
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -20,17 +34,5 @@
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
-
-    <include layout="@layout/content_main" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/add_list"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:focusable="false"
-        android:clickable="false"
-        app:srcCompat="@android:drawable/ic_input_add" />
 
 </android.support.design.widget.CoordinatorLayout>
