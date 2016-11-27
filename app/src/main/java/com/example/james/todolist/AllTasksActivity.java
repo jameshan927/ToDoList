@@ -1,13 +1,16 @@
 package com.example.james.todolist;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.CheckedTextView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,39 +39,72 @@ public class AllTasksActivity extends AppCompatActivity {
         }
         return null; // not found
     }
+    public void deleteTaskAndCheckbox(View view) {
 
-    public void deleteTask(View view) {
-        View parent = (View) view.getParent();
-        TextView taskTextView = (TextView) parent.findViewById(R.id.task_title);
-        String task = String.valueOf(taskTextView.getText());
-        String key = "";
+        final CheckedTextView ctv = (CheckedTextView) findViewById(R.id.task_title);
 
-        for(int j = 0; j < listList.size(); j++) {
-            SharedPreferences pref = getSharedPreferences(listList.get(j), MODE_PRIVATE);
-            key = findKey(pref, task);
-            if(key != null) {
-                SharedPreferences.Editor editor = pref.edit();
-                editor.remove(key);
-                editor.commit();
-                break;
+        ctv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+
+                if(ctv.isChecked()) {
+                    ctv.setChecked(false);
+                }
+                else {
+                    ctv.setChecked(true);
+                }
             }
-        }
+        });
 
-        for(int j = 0; j < taskList.size(); j++) {
-            if(taskList.get(j).compareTo(key) == 0) {
-                taskList.remove(j);
+        ctv.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(final View view) {
+                AlertDialog dialog = new AlertDialog.Builder(AllTasksActivity.this)
+                        .setTitle("Delete this task?")
+                        .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                View parent = (View) view.getParent();
+                                TextView taskTextView = (TextView) parent.findViewById(R.id.task_title);
+                                String task = String.valueOf(taskTextView.getText());
+                                String key = "";
+
+                                for(int j = 0; j < listList.size(); j++) {
+                                    SharedPreferences pref = getSharedPreferences(listList.get(j), MODE_PRIVATE);
+                                    key = findKey(pref, task);
+                                    if(key != null) {
+                                        SharedPreferences.Editor editor = pref.edit();
+                                        editor.remove(key);
+                                        editor.commit();
+                                        break;
+                                    }
+                                }
+
+                                for(int j = 0; j < taskList.size(); j++) {
+                                    if(taskList.get(j).compareTo(key) == 0) {
+                                        taskList.remove(j);
+                                    }
+                                }
+
+
+                                updateUI();
+
+                                Context context = getApplicationContext();
+                                int duration = Toast.LENGTH_SHORT;
+                                CharSequence message = task + " has been removed";
+
+                                Toast delete = Toast.makeText(context, message, duration);
+                                delete.show();
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .create();
+                dialog.show();
+
+                return true;
             }
-        }
+        });
 
-
-        updateUI();
-
-        Context context = getApplicationContext();
-        int duration = Toast.LENGTH_SHORT;
-        CharSequence message = task + " has been removed";
-
-        Toast delete = Toast.makeText(context, message, duration);
-        delete.show();
     }
 
     public void updateUI() {

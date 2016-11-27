@@ -16,7 +16,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckedTextView;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -74,32 +77,83 @@ public class TaskActivity extends AppCompatActivity {
         return null; // not found
     }
 
-    public void deleteTask(View view) {
-        View parent = (View) view.getParent();
-        TextView taskTextView = (TextView) parent.findViewById(R.id.task_title);
-        String task = String.valueOf(taskTextView.getText());
+    public void deleteTaskAndCheckbox(View view) {
+
+        final CheckedTextView ctv = (CheckedTextView) findViewById(R.id.task_title);
+
+        ctv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+
+                if(ctv.isChecked()) {
+                    ctv.setChecked(false);
+                }
+                else {
+                    ctv.setChecked(true);
+                }
+            }
+        });
+
+        ctv.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(final View view) {
+                AlertDialog dialog = new AlertDialog.Builder(TaskActivity.this)
+                        .setTitle("Delete this task?")
+                        .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                View parent = (View) view.getParent();
+                                TextView taskTextView = (TextView) parent.findViewById(R.id.task_title);
+                                String task = String.valueOf(taskTextView.getText());
 
 
-        Bundle bundle = getIntent().getExtras();
-        String listName = bundle.getString("listName");
+                                Bundle bundle = getIntent().getExtras();
+                                String listName = bundle.getString("listName");
 
-        SharedPreferences pref = getSharedPreferences(listName,MODE_PRIVATE);
-        String key = findKey(pref, task);
-        SharedPreferences.Editor editor = pref.edit();
-        editor.remove(key);
-        editor.commit();
+                                SharedPreferences pref = getSharedPreferences(listName,MODE_PRIVATE);
+                                String key = findKey(pref, task);
+                                SharedPreferences.Editor editor = pref.edit();
+                                editor.remove(key);
+                                editor.commit();
 
 
-        updateUI(listName);
+                                updateUI(listName);
 
-        Context context = getApplicationContext();
-        int duration = Toast.LENGTH_SHORT;
-        CharSequence message = task + " has been removed";
+                                Context context = getApplicationContext();
+                                int duration = Toast.LENGTH_SHORT;
+                                CharSequence message = task + " has been removed";
 
-        Toast delete = Toast.makeText(context, message, duration);
-        delete.show();
+                                Toast delete = Toast.makeText(context, message, duration);
+                                delete.show();
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .create();
+                dialog.show();
+                return true;
+            }
+        });
+
     }
+/*
+    public void starred(View view) {
 
+        final Button star = (Button) findViewById(R.id.starred);
+        star.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                star.setSelected(!star.isSelected());
+                if(star.isSelected()) {
+                    star.setBackground(getDrawable(R.drawable.ic_menu_camera));
+                }
+                else {
+                    star.setBackground(getDrawable(R.drawable.ic_menu_gallery));
+                }
+            }
+
+        });
+    }
+*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

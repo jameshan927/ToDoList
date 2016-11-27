@@ -1,40 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:descendantFocusability="blocksDescendants"
     android:layout_height="match_parent"
     android:layout_gravity="center_vertical">
 
-    <ImageButton
-        android:id="@+id/task_delete"
-        android:src="@android:drawable/btn_dialog"
-        android:onClick="deleteTask"
-        style="@android:style/Widget.ImageButton"
-        android:elevation="0dp"
-        android:layout_width="30dp"
+    <CheckedTextView
+        android:text="ToDo Task"
         android:layout_height="30dp"
-        android:layout_alignBottom="@+id/task_title"
-        android:layout_alignParentEnd="true"
-        android:background="@android:drawable/btn_default" />
-
-    <CheckBox
-        android:text="CheckBox"
-        android:layout_height="30dp"
-        android:id="@+id/checkBox"
-        android:layout_width="30dp"
-        android:layout_alignBottom="@+id/task_title"
-        android:layout_toStartOf="@+id/task_title"
-        android:layout_marginEnd="11dp" />
-
-    <TextView
+        android:layout_marginTop="20dp"
         android:id="@+id/task_title"
-        android:text="Hello"
-        android:layout_height="40dp"
-        android:layout_marginTop="21dp"
+        android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+        android:textSize="16sp"
+        android:checked="false"
+        android:clickable="true"
+        android:onClick="deleteTaskAndCheckbox"
+        android:layout_width="340dp"
         android:layout_alignParentTop="true"
-        android:layout_toStartOf="@+id/task_delete"
-        android:layout_width="250dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-        android:fontFamily="casual" />
+        android:layout_toEndOf="@+id/starred"
+        android:layout_marginStart="12dp" />
+
+    <Button
+        android:background="@android:drawable/btn_star_big_off"
+        android:id="@+id/starred"
+        android:layout_alignTop="@+id/task_title"
+        android:layout_alignParentStart="true"
+        android:layout_width="20dp"
+        android:layout_height="20dp" />
 
 </RelativeLayout>
